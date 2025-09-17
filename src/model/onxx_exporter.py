@@ -1,7 +1,10 @@
 from __future__ import annotations
 from pathlib import Path
-
+import numpy as np
+import onnxruntime as ort
 import torch
+import onnx
+from onnxsim import simplify
 
 from src.model.onxx_exporter_conf import OnnxExportConfig
 
@@ -69,7 +72,6 @@ class OnnxExporter:
 
         if self.cfg.meta:
             try:
-                import onnx
                 m = onnx.load(str(self.cfg.onnx_path))
                 for k, v in self.cfg.meta.items():
                     m.metadata_props.add(key=str(k), value=str(v))
@@ -79,9 +81,6 @@ class OnnxExporter:
 
         if self.cfg.simplify:
             try:
-                import onnx
-                from onnxsim import simplify
-
                 m = onnx.load(str(self.cfg.onnx_path))
                 m_simplified, ok = simplify(m)
                 if ok:
@@ -93,11 +92,8 @@ class OnnxExporter:
 
         if self.cfg.validate_with_ort:
             try:
-                import onnxruntime as ort
                 providers = ["CPUExecutionProvider"]
                 sess = ort.InferenceSession(str(self.cfg.onnx_path), providers=providers)
-
-                import numpy as np
 
                 def _run(h, w):
                     x = torch.zeros((1, C, h, w), dtype=dtype).numpy().astype(

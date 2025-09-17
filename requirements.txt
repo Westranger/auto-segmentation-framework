@@ -1,0 +1,10 @@
+onnx
+onnxruntime
+onnxsim
+optuna
+Pillow
+scikit-learn
+torch
+torchvision
+tqdm
+numpy
